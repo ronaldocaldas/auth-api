@@ -1,4 +1,4 @@
-package com.ronaldocaldas.authapi.security;
+package com.ronaldocaldas.authapi.security.oauth2;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

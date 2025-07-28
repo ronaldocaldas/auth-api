@@ -2,7 +2,8 @@ package com.ronaldocaldas.authapi.controller;
 
 import com.ronaldocaldas.authapi.model.RefreshToken;
 import com.ronaldocaldas.authapi.repository.RefreshTokenRepository;
-import com.ronaldocaldas.authapi.security.JwtTokenProvider;
+import com.ronaldocaldas.authapi.security.CustomOAuth2User;
+import com.ronaldocaldas.authapi.security.oauth2.JwtTokenProvider;
 import com.ronaldocaldas.authapi.service.RefreshTokenService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,7 +31,14 @@ public class AuthController {
 
     @GetMapping("/login-success")
     public ResponseEntity<?> loginSuccess(Authentication authentication) {
-        String userId = authentication.getName(); // userId from token or OAuth2 principal
+        String userId;
+
+        if (authentication.getPrincipal() instanceof CustomOAuth2User oauthUser) {
+            userId = oauthUser.getName(); // ou outro campo como oauthUser.getEmail()
+        } else {
+            userId = authentication.getName();
+        }
+
         String accessToken = tokenProvider.createToken(userId);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userId);
 
@@ -39,6 +47,7 @@ public class AuthController {
                 "refreshToken", refreshToken.getToken()
         ));
     }
+
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {

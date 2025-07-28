@@ -1,4 +1,4 @@
-package com.ronaldocaldas.authapi.security;
+package com.ronaldocaldas.authapi.security.oauth2;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,6 +26,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        // Ignore related paths from OAuth2
+        if (path.startsWith("/login/oauth2") ||
+                path.startsWith("/oauth2") ||
+                path.equals("/auth/login-success")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String bearerToken = request.getHeader("Authorization");
 
